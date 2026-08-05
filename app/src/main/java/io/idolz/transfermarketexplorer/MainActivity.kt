@@ -14,6 +14,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import io.idolz.transfermarketexplorer.presentation.country_list.CountryListScreen
+import io.idolz.transfermarketexplorer.presentation.league_list.LeagueListScreen
 import io.idolz.transfermarketexplorer.presentation.navigation.Screen
 import io.idolz.transfermarketexplorer.ui.theme.TransfermarketExplorerTheme
 
@@ -39,7 +40,14 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable(Screen.LeagueList.route) {
-                            // TODO: Implement LeagueListScreen
+                            LeagueListScreen(
+                                onLeagueClick = { league ->
+                                    navController.navigate(Screen.TeamList.createRoute(league.id))
+                                }
+                            )
+                        }
+                        composable(Screen.TeamList.route) {
+                            // TODO: Implement TeamListScreen
                         }
                     }
                 }
