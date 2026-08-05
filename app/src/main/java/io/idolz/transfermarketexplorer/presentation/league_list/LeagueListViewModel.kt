@@ -24,19 +24,29 @@ class LeagueListViewModel @Inject constructor(
 
     init {
         savedStateHandle.get<String>("countryId")?.let { countryId ->
+            _state.value = _state.value.copy(countryId = countryId)
             getLeagues(countryId)
         }
     }
 
+    fun refresh() {
+        getLeagues(_state.value.countryId)
+    }
+
     private fun getLeagues(countryId: String) {
+        if (countryId.isBlank()) return
         getLeaguesUseCase(countryId)
             .onStart {
-                _state.value = _state.value.copy(isLoading = true)
+                _state.value = _state.value.copy(
+                    isLoading = _state.value.leagues.isEmpty(),
+                    isRefreshing = _state.value.leagues.isNotEmpty()
+                )
             }
             .onEach { leagues ->
                 _state.value = _state.value.copy(
                     leagues = leagues,
                     isLoading = false,
+                    isRefreshing = false,
                     error = null
                 )
             }

@@ -13,9 +13,16 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
 
+import io.idolz.transfermarketexplorer.domain.use_case.IsFavoriteUseCase
+import io.idolz.transfermarketexplorer.domain.use_case.ToggleFavoriteUseCase
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+
 @HiltViewModel
 class PlayerDetailViewModel @Inject constructor(
     private val repository: TransfermarketRepository,
+    private val isFavoriteUseCase: IsFavoriteUseCase,
+    private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -25,6 +32,23 @@ class PlayerDetailViewModel @Inject constructor(
     init {
         savedStateHandle.get<String>("playerId")?.let { playerId ->
             getPlayerDetails(playerId)
+            checkIfFavorite(playerId)
+        }
+    }
+
+    private fun checkIfFavorite(playerId: String) {
+        isFavoriteUseCase(playerId)
+            .onEach { isFavorite ->
+                _state.value = _state.value.copy(isFavorite = isFavorite)
+            }
+            .launchIn(viewModelScope)
+    }
+
+    fun toggleFavorite() {
+        _state.value.player?.let { player ->
+            viewModelScope.launch {
+                toggleFavoriteUseCase(player)
+            }
         }
     }
 

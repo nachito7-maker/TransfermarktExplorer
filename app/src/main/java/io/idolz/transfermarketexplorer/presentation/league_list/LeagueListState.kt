@@ -5,5 +5,7 @@ import io.idolz.transfermarketexplorer.domain.model.League
 data class LeagueListState(
     val leagues: List<League> = emptyList(),
     val isLoading: Boolean = false,
+    val isRefreshing: Boolean = false,
+    val countryId: String = "",
     val error: String? = null
 )

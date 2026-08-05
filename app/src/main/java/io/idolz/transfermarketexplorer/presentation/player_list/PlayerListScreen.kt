@@ -1,10 +1,13 @@
 package io.idolz.transfermarketexplorer.presentation.player_list
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -14,67 +17,97 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import io.idolz.transfermarketexplorer.domain.model.Player
+import io.idolz.transfermarketexplorer.presentation.components.ErrorView
+import io.idolz.transfermarketexplorer.presentation.components.PlayerItem
+import io.idolz.transfermarketexplorer.presentation.components.TransfermarketTopAppBar
+import io.idolz.transfermarketexplorer.presentation.components.shimmer
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun PlayerListScreen(
     viewModel: PlayerListViewModel = hiltViewModel(),
-    onPlayerClick: (Player) -> Unit
+    onPlayerClick: (Player) -> Unit,
+    onBackClick: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Players") })
+            TransfermarketTopAppBar(
+                title = "Players",
+                onBackClick = onBackClick
+            )
         }
     ) { padding ->
-        Box(modifier = Modifier.fillMaxSize().padding(padding)) {
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(state.players) { player ->
-                    PlayerItem(
-                        player = player,
-                        onClick = { onPlayerClick(player) }
-                    )
-                }
-            }
-
+        PullToRefreshBox(
+            isRefreshing = state.isRefreshing,
+            onRefresh = viewModel::refresh,
+            modifier = Modifier.fillMaxSize().padding(padding)
+        ) {
+            val error = state.error
             if (state.isLoading) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            }
-
-            state.error?.let { error ->
-                Text(
-                    text = error,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.align(Alignment.Center)
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    items(10) {
+                        PlayerShimmerItem()
+                    }
+                }
+            } else if (error != null) {
+                ErrorView(
+                    message = error,
+                    onRetry = viewModel::refresh
                 )
+            } else {
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    state.groupedPlayers.forEach { (position, players) ->
+                        stickyHeader {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                            ) {
+                                Text(
+                                    text = position,
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+                        items(players) { player ->
+                            PlayerItem(
+                                player = player,
+                                onClick = { onPlayerClick(player) }
+                            )
+                        }
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-fun PlayerItem(
-    player: Player,
-    onClick: () -> Unit
-) {
-    Row(
+fun PlayerShimmerItem() {
+    ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
-        AsyncImage(
-            model = player.imageUrl,
-            contentDescription = null,
-            modifier = Modifier.size(60.dp)
-        )
-        Spacer(modifier = Modifier.width(16.dp))
-        Column {
-            Text(text = player.name, style = MaterialTheme.typography.titleMedium)
-            Text(text = "${player.position} | ${player.age} años", style = MaterialTheme.typography.bodySmall)
-            Text(text = player.marketValue, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(modifier = Modifier.size(60.dp).shimmer())
+            Spacer(modifier = Modifier.width(16.dp))
+            Column {
+                Box(modifier = Modifier.height(20.dp).width(150.dp).shimmer())
+                Spacer(modifier = Modifier.height(8.dp))
+                Box(modifier = Modifier.height(16.dp).width(100.dp).shimmer())
+                Spacer(modifier = Modifier.height(8.dp))
+                Box(modifier = Modifier.height(20.dp).width(80.dp).shimmer())
+            }
         }
     }
 }

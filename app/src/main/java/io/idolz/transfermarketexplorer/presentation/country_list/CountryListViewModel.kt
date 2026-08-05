@@ -24,15 +24,43 @@ class CountryListViewModel @Inject constructor(
         getCountries()
     }
 
+    fun onSearchQueryChange(query: String) {
+        _state.value = _state.value.copy(
+            searchQuery = query,
+            filteredCountries = if (query.isBlank()) {
+                _state.value.countries
+            } else {
+                _state.value.countries.filter {
+                    it.name.contains(query, ignoreCase = true)
+                }
+            }
+        )
+    }
+
+    fun refresh() {
+        getCountries()
+    }
+
     private fun getCountries() {
         getCountriesUseCase()
             .onStart {
-                _state.value = _state.value.copy(isLoading = true)
+                _state.value = _state.value.copy(
+                    isLoading = _state.value.countries.isEmpty(),
+                    isRefreshing = _state.value.countries.isNotEmpty()
+                )
             }
             .onEach { countries ->
                 _state.value = _state.value.copy(
                     countries = countries,
+                    filteredCountries = if (_state.value.searchQuery.isBlank()) {
+                        countries
+                    } else {
+                        countries.filter {
+                            it.name.contains(_state.value.searchQuery, ignoreCase = true)
+                        }
+                    },
                     isLoading = false,
+                    isRefreshing = false,
                     error = null
                 )
             }

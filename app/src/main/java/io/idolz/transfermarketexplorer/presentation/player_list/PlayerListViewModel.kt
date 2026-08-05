@@ -24,19 +24,30 @@ class PlayerListViewModel @Inject constructor(
 
     init {
         savedStateHandle.get<String>("teamId")?.let { teamId ->
+            _state.value = _state.value.copy(teamId = teamId)
             getPlayers(teamId)
         }
     }
 
+    fun refresh() {
+        getPlayers(_state.value.teamId)
+    }
+
     private fun getPlayers(teamId: String) {
+        if (teamId.isBlank()) return
         repository.getPlayers(teamId)
             .onStart {
-                _state.value = _state.value.copy(isLoading = true)
+                _state.value = _state.value.copy(
+                    isLoading = _state.value.players.isEmpty(),
+                    isRefreshing = _state.value.players.isNotEmpty()
+                )
             }
             .onEach { players ->
                 _state.value = _state.value.copy(
                     players = players,
+                    groupedPlayers = players.groupBy { it.position },
                     isLoading = false,
+                    isRefreshing = false,
                     error = null
                 )
             }

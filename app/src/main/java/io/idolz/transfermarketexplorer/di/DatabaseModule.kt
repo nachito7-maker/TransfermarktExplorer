@@ -25,7 +25,9 @@ object DatabaseModule {
             context,
             TransfermarketDatabase::class.java,
             TransfermarketDatabase.DATABASE_NAME
-        ).build()
+        )
+        .fallbackToDestructiveMigration()
+        .build()
     }
 
     @Provides
