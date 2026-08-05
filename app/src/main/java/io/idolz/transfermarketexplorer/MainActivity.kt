@@ -16,6 +16,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.idolz.transfermarketexplorer.presentation.country_list.CountryListScreen
 import io.idolz.transfermarketexplorer.presentation.league_list.LeagueListScreen
 import io.idolz.transfermarketexplorer.presentation.navigation.Screen
+import io.idolz.transfermarketexplorer.presentation.team_list.TeamListScreen
 import io.idolz.transfermarketexplorer.ui.theme.TransfermarketExplorerTheme
 
 @AndroidEntryPoint
@@ -47,7 +48,14 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable(Screen.TeamList.route) {
-                            // TODO: Implement TeamListScreen
+                            TeamListScreen(
+                                onTeamClick = { team ->
+                                    navController.navigate(Screen.PlayerList.createRoute(team.id))
+                                }
+                            )
+                        }
+                        composable(Screen.PlayerList.route) {
+                            // TODO: Implement PlayerListScreen
                         }
                     }
                 }

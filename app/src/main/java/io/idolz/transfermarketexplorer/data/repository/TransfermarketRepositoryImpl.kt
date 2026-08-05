@@ -2,10 +2,13 @@ package io.idolz.transfermarketexplorer.data.repository
 
 import io.idolz.transfermarketexplorer.data.local.CountryDao
 import io.idolz.transfermarketexplorer.data.local.LeagueDao
+import io.idolz.transfermarketexplorer.data.local.TeamDao
 import io.idolz.transfermarketexplorer.data.mapper.toCountry
 import io.idolz.transfermarketexplorer.data.mapper.toCountryEntity
 import io.idolz.transfermarketexplorer.data.mapper.toLeague
 import io.idolz.transfermarketexplorer.data.mapper.toLeagueEntity
+import io.idolz.transfermarketexplorer.data.mapper.toTeam
+import io.idolz.transfermarketexplorer.data.mapper.toTeamEntity
 import io.idolz.transfermarketexplorer.data.remote.TransfermarketApi
 import io.idolz.transfermarketexplorer.domain.model.Country
 import io.idolz.transfermarketexplorer.domain.model.League
@@ -21,7 +24,8 @@ import javax.inject.Inject
 class TransfermarketRepositoryImpl @Inject constructor(
     private val api: TransfermarketApi,
     private val countryDao: CountryDao,
-    private val leagueDao: LeagueDao
+    private val leagueDao: LeagueDao,
+    private val teamDao: TeamDao
 ) : TransfermarketRepository {
 
     override fun getCountries(): Flow<List<Country>> = flow {
@@ -55,8 +59,18 @@ class TransfermarketRepositoryImpl @Inject constructor(
     }
 
     override fun getTeams(leagueId: String): Flow<List<Team>> = flow {
-        // Implementation for teams
-        emit(emptyList())
+        val cachedFlow = teamDao.getTeams(leagueId).map { entities ->
+            entities.map { it.toTeam() }
+        }
+
+        try {
+            val remoteTeams = api.getTeams(leagueId)
+            teamDao.insertTeams(remoteTeams.map { it.toTeamEntity(leagueId) })
+        } catch (e: Exception) {
+            // Handle error
+        }
+
+        emitAll(cachedFlow)
     }
 
     override fun getPlayers(teamId: String): Flow<List<Player>> = flow {
