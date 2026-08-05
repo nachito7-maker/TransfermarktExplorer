@@ -9,6 +9,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import io.idolz.transfermarketexplorer.data.local.CountryDao
 import io.idolz.transfermarketexplorer.data.local.LeagueDao
+import io.idolz.transfermarketexplorer.data.local.PlayerDao
 import io.idolz.transfermarketexplorer.data.local.TeamDao
 import io.idolz.transfermarketexplorer.data.local.TransfermarketDatabase
 import javax.inject.Singleton
@@ -43,5 +44,11 @@ object DatabaseModule {
     @Singleton
     fun provideTeamDao(db: TransfermarketDatabase): TeamDao {
         return db.teamDao
+    }
+
+    @Provides
+    @Singleton
+    fun providePlayerDao(db: TransfermarketDatabase): PlayerDao {
+        return db.playerDao
     }
 }

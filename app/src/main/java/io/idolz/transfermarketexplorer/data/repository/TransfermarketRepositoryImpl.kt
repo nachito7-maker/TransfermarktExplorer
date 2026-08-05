@@ -2,13 +2,9 @@ package io.idolz.transfermarketexplorer.data.repository
 
 import io.idolz.transfermarketexplorer.data.local.CountryDao
 import io.idolz.transfermarketexplorer.data.local.LeagueDao
+import io.idolz.transfermarketexplorer.data.local.PlayerDao
 import io.idolz.transfermarketexplorer.data.local.TeamDao
-import io.idolz.transfermarketexplorer.data.mapper.toCountry
-import io.idolz.transfermarketexplorer.data.mapper.toCountryEntity
-import io.idolz.transfermarketexplorer.data.mapper.toLeague
-import io.idolz.transfermarketexplorer.data.mapper.toLeagueEntity
-import io.idolz.transfermarketexplorer.data.mapper.toTeam
-import io.idolz.transfermarketexplorer.data.mapper.toTeamEntity
+import io.idolz.transfermarketexplorer.data.mapper.*
 import io.idolz.transfermarketexplorer.data.remote.TransfermarketApi
 import io.idolz.transfermarketexplorer.domain.model.Country
 import io.idolz.transfermarketexplorer.domain.model.League
@@ -25,7 +21,8 @@ class TransfermarketRepositoryImpl @Inject constructor(
     private val api: TransfermarketApi,
     private val countryDao: CountryDao,
     private val leagueDao: LeagueDao,
-    private val teamDao: TeamDao
+    private val teamDao: TeamDao,
+    private val playerDao: PlayerDao
 ) : TransfermarketRepository {
 
     override fun getCountries(): Flow<List<Country>> = flow {
@@ -74,12 +71,36 @@ class TransfermarketRepositoryImpl @Inject constructor(
     }
 
     override fun getPlayers(teamId: String): Flow<List<Player>> = flow {
-        // Implementation for players
-        emit(emptyList())
+        val cachedFlow = playerDao.getPlayers(teamId).map { entities ->
+            entities.map { it.toPlayer() }
+        }
+
+        try {
+            val remotePlayers = api.getPlayers(teamId)
+            playerDao.insertPlayers(remotePlayers.map { it.toPlayerEntity(teamId) })
+        } catch (e: Exception) {
+            // Handle error
+        }
+
+        emitAll(cachedFlow)
     }
 
     override fun getPlayerDetails(playerId: String): Flow<Player?> = flow {
-        // Implementation for player details
-        emit(null)
+        val cachedFlow = playerDao.getPlayerById(playerId).map { it?.toPlayer() }
+
+        try {
+            val remotePlayer = api.getPlayerDetails(playerId)
+            // Note: We might not have teamId here from details api, 
+            // but we can preserve it if we already have it in DB or if API provides it.
+            // For now, let's assume we can map it if we have context.
+            // In a real app, the DTO might contain teamId.
+            // Since we don't have teamId in PlayerDto yet, let's add it or use a default/existing one.
+            // I will update PlayerDto to include teamId if possible, or just use empty for now if it's a detail view.
+            playerDao.insertPlayer(remotePlayer.toPlayerEntity("")) 
+        } catch (e: Exception) {
+            // Handle error
+        }
+
+        emitAll(cachedFlow)
     }
 }

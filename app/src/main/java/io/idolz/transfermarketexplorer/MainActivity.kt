@@ -16,6 +16,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.idolz.transfermarketexplorer.presentation.country_list.CountryListScreen
 import io.idolz.transfermarketexplorer.presentation.league_list.LeagueListScreen
 import io.idolz.transfermarketexplorer.presentation.navigation.Screen
+import io.idolz.transfermarketexplorer.presentation.player_detail.PlayerDetailScreen
+import io.idolz.transfermarketexplorer.presentation.player_list.PlayerListScreen
 import io.idolz.transfermarketexplorer.presentation.team_list.TeamListScreen
 import io.idolz.transfermarketexplorer.ui.theme.TransfermarketExplorerTheme
 
@@ -55,7 +57,18 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable(Screen.PlayerList.route) {
-                            // TODO: Implement PlayerListScreen
+                            PlayerListScreen(
+                                onPlayerClick = { player ->
+                                    navController.navigate(Screen.PlayerDetail.createRoute(player.id))
+                                }
+                            )
+                        }
+                        composable(Screen.PlayerDetail.route) {
+                            PlayerDetailScreen(
+                                onBackClick = {
+                                    navController.popBackStack()
+                                }
+                            )
                         }
                     }
                 }
