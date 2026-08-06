@@ -6,10 +6,10 @@ import io.idolz.transfermarketexplorer.domain.model.League
 
 fun LeagueDto.toLeagueEntity(countryId: String): LeagueEntity {
     return LeagueEntity(
-        id = id,
-        name = name,
+        id = idLeague,
+        name = strLeague,
         countryId = countryId,
-        logoUrl = logo
+        logoUrl = strBadge ?: ""
     )
 }
 

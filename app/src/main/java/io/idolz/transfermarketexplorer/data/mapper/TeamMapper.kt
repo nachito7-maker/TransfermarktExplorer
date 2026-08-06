@@ -6,11 +6,11 @@ import io.idolz.transfermarketexplorer.domain.model.Team
 
 fun TeamDto.toTeamEntity(leagueId: String): TeamEntity {
     return TeamEntity(
-        id = id,
-        name = name,
+        id = idTeam,
+        name = strTeam,
         leagueId = leagueId,
-        logoUrl = logo,
-        marketValue = marketValue
+        logoUrl = strBadge ?: strLogo ?: strTeamBadge ?: "",
+        marketValue = null 
     )
 }
 

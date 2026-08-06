@@ -4,8 +4,14 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class TeamDto(
-    val id: String,
-    val name: String,
-    val logo: String,
-    val marketValue: String? = null
+    val idTeam: String,
+    val strTeam: String,
+    val strBadge: String? = null,
+    val strLogo: String? = null,
+    val strTeamBadge: String? = null
+)
+
+@Serializable
+data class TeamResponse(
+    val teams: List<TeamDto>? = null
 )

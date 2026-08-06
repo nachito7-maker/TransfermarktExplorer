@@ -47,7 +47,7 @@ class LeagueListViewModel @Inject constructor(
                     leagues = leagues,
                     isLoading = false,
                     isRefreshing = false,
-                    error = null
+                    error = null // No mostramos error automático aquí para evitar falsos positivos
                 )
             }
             .launchIn(viewModelScope)

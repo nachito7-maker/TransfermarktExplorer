@@ -8,5 +8,6 @@ data class Player(
     val nationality: String,
     val age: Int,
     val marketValue: String,
-    val imageUrl: String
+    val imageUrl: String,
+    val description: String? = null
 )

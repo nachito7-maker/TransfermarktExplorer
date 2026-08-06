@@ -11,5 +11,6 @@ data class FavoritePlayerEntity(
     val position: String,
     val nationality: String,
     val age: Int,
-    val marketValue: String
+    val marketValue: String,
+    val description: String? = null
 )

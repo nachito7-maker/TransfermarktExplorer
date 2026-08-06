@@ -7,14 +7,15 @@ import io.idolz.transfermarketexplorer.domain.model.Player
 
 fun PlayerDto.toPlayerEntity(teamId: String): PlayerEntity {
     return PlayerEntity(
-        id = id,
-        name = name,
+        id = idPlayer,
+        name = strPlayer,
         teamId = teamId,
-        imageUrl = image,
-        position = position,
-        nationality = nationality,
-        age = age,
-        marketValue = marketValue
+        imageUrl = strCutout ?: strThumb ?: "",
+        position = strPosition ?: "N/A",
+        nationality = strNationality ?: "N/A",
+        age = 0, // Age can be calculated from dateBorn
+        marketValue = "N/A", // TheSportsDB doesn't usually provide market value
+        description = strDescriptionEN
     )
 }
 
@@ -27,7 +28,8 @@ fun PlayerEntity.toPlayer(): Player {
         position = position,
         nationality = nationality,
         age = age,
-        marketValue = marketValue
+        marketValue = marketValue,
+        description = description
     )
 }
 
@@ -39,7 +41,8 @@ fun Player.toFavoritePlayerEntity(): FavoritePlayerEntity {
         position = position,
         nationality = nationality,
         age = age,
-        marketValue = marketValue
+        marketValue = marketValue,
+        description = description
     )
 }
 
@@ -47,11 +50,12 @@ fun FavoritePlayerEntity.toPlayer(): Player {
     return Player(
         id = id,
         name = name,
-        teamId = "", // Not needed for favorites list usually
+        teamId = "",
         imageUrl = imageUrl,
         position = position,
         nationality = nationality,
         age = age,
-        marketValue = marketValue
+        marketValue = marketValue,
+        description = description
     )
 }

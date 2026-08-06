@@ -16,7 +16,7 @@ import io.idolz.transfermarketexplorer.data.local.entity.TeamEntity
         PlayerEntity::class,
         FavoritePlayerEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class TransfermarketDatabase : RoomDatabase() {

@@ -110,6 +110,23 @@ fun PlayerDetailScreen(
                             )
                         }
                     }
+                    
+                    if (player.marketValue == "N/A") {
+                        // Show a note or description if market value is missing
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Text(
+                            text = "Biografía",
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.align(Alignment.Start)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = player.description ?: "No hay biografía disponible.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Start,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 }
             }
 

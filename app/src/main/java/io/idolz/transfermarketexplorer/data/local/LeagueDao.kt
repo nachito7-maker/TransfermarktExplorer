@@ -12,6 +12,9 @@ interface LeagueDao {
     @Query("SELECT * FROM leagues WHERE countryId = :countryId")
     fun getLeagues(countryId: String): Flow<List<LeagueEntity>>
 
+    @Query("SELECT * FROM leagues WHERE id = :leagueId")
+    suspend fun getLeagueById(leagueId: String): LeagueEntity?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertLeagues(leagues: List<LeagueEntity>)
 }
